@@ -3,6 +3,7 @@ package com.teamname.freelancetaskmanager.ui.adapters;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -20,43 +21,45 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
 
     private List<Project> projectList;
 
-    public interface OnItemClickListener {
-        void onItemClick(Project project);
+    // ✅ Interface to communicate with MainActivity
+    public interface OnStatusClickListener {
+        void onStatusClick(Project project);
     }
 
-    private OnItemClickListener listener;
+    private OnStatusClickListener statusClickListener;
 
-    public ProjectAdapter(List<Project> projectList, OnItemClickListener listener) {
+    // ✅ Constructor
+    public ProjectAdapter(List<Project> projectList, OnStatusClickListener listener) {
         this.projectList = projectList;
-        this.listener = listener;
+        this.statusClickListener = listener;
     }
 
+    // ================= VIEW HOLDER =================
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView textViewProjectName, textViewClient, textViewDescription, textViewBudget, textViewDeadline;
+
+        TextView textViewProjectName;
+        TextView textViewClient;
+        TextView textViewDescription;
+        TextView textViewBudget;
+        TextView textViewDeadline;
+        TextView txtStatus;
+        Button btnStatus;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+
             textViewProjectName = itemView.findViewById(R.id.textViewProjectName);
             textViewClient = itemView.findViewById(R.id.textViewClient);
             textViewDescription = itemView.findViewById(R.id.textViewDescription);
             textViewBudget = itemView.findViewById(R.id.textViewBudget);
             textViewDeadline = itemView.findViewById(R.id.textViewDeadline);
-        }
 
-        public void bind(Project project, OnItemClickListener listener) {
-            textViewProjectName.setText(project.getName());
-            textViewClient.setText("Client: " + project.getClient());
-            textViewDescription.setText(project.getDescription());
-            textViewBudget.setText("Budget: " + project.getBudget() + "€");
-
-            // Formater la date
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.FRENCH);
-            String formattedDate = sdf.format(new Date(project.getDeadline()));
-            textViewDeadline.setText("Échéance: " + formattedDate);
-
-            itemView.setOnClickListener(v -> listener.onItemClick(project));
+            txtStatus = itemView.findViewById(R.id.txtStatus);
+            btnStatus = itemView.findViewById(R.id.btnStatus);
         }
     }
+
+    // ================= ADAPTER METHODS =================
 
     @NonNull
     @Override
@@ -68,8 +71,40 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+
         Project project = projectList.get(position);
-        holder.bind(project, listener);
+
+        // ===== Bind basic info =====
+        holder.textViewProjectName.setText(project.getName());
+        holder.textViewClient.setText("Client: " + project.getClient());
+        holder.textViewDescription.setText(project.getDescription());
+        holder.textViewBudget.setText("Budget: " + project.getBudget() + "€");
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.FRENCH);
+        String formattedDate = sdf.format(new Date(project.getDeadline()));
+        holder.textViewDeadline.setText("Échéance: " + formattedDate);
+
+        // ===== Bind status =====
+        holder.txtStatus.setText(project.getStatus());
+
+        if ("DONE".equals(project.getStatus())) {
+            holder.txtStatus.setTextColor(
+                    holder.itemView.getResources().getColor(android.R.color.holo_green_dark)
+            );
+            holder.btnStatus.setText("Undo");
+        } else {
+            holder.txtStatus.setTextColor(
+                    holder.itemView.getResources().getColor(android.R.color.holo_red_dark)
+            );
+            holder.btnStatus.setText("Mark Done");
+        }
+
+        // ===== Button click =====
+        holder.btnStatus.setOnClickListener(v -> {
+            if (statusClickListener != null) {
+                statusClickListener.onStatusClick(project);
+            }
+        });
     }
 
     @Override
@@ -77,6 +112,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
         return projectList == null ? 0 : projectList.size();
     }
 
+    // ================= UPDATE LIST =================
     public void setProjectList(List<Project> projectList) {
         this.projectList = projectList;
         notifyDataSetChanged();

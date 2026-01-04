@@ -9,7 +9,7 @@ import androidx.room.RoomDatabase;
 import com.teamname.freelancetaskmanager.data.dao.ProjectDao;
 import com.teamname.freelancetaskmanager.data.entities.Project;
 
-@Database(entities = {Project.class}, version = 1, exportSchema = false)
+@Database(entities = {Project.class}, version = 2, exportSchema = false)
 public abstract class DatabaseHelper extends RoomDatabase {
 
     public abstract ProjectDao projectDao();

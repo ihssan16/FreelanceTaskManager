@@ -30,20 +30,19 @@ public class ProjectRepository {
     }
 
     public void insert(Project project) {
-        executor.execute(() -> {
-            projectDao.insert(project);
-        });
+        executor.execute(() -> projectDao.insert(project));
     }
 
     public void update(Project project) {
-        executor.execute(() -> {
-            projectDao.update(project);
-        });
+        executor.execute(() -> projectDao.update(project));
     }
 
     public void delete(Project project) {
-        executor.execute(() -> {
-            projectDao.delete(project);
-        });
+        executor.execute(() -> projectDao.delete(project));
+    }
+
+
+    public void updateStatus(int id, String status) {
+        executor.execute(() -> projectDao.updateStatus(id, status));
     }
 }

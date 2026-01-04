@@ -1,17 +1,16 @@
 package com.teamname.freelancetaskmanager;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.teamname.freelancetaskmanager.data.entities.Project;
@@ -33,46 +32,44 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Initialiser les vues
+        // ===== Views =====
         recyclerView = findViewById(R.id.recyclerView);
         fab = findViewById(R.id.fab);
 
-        // Configurer RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Initialiser ViewModel
-        projectViewModel = new ViewModelProvider(this).get(ProjectViewModel.class);
+        // ===== ViewModel =====
+        projectViewModel = new ViewModelProvider(this)
+                .get(ProjectViewModel.class);
 
-        // Initialiser l'Adapter
+        // ===== Adapter =====
         adapter = new ProjectAdapter(null, project -> {
-            // Quand on clique sur un projet
-            Toast.makeText(MainActivity.this,
-                    "Projet: " + project.getName(), Toast.LENGTH_SHORT).show();
+            String newStatus = project.getStatus().equals("PENDING")
+                    ? "DONE"
+                    : "PENDING";
+
+            projectViewModel.updateStatus(project.getId(), newStatus);
         });
+
         recyclerView.setAdapter(adapter);
 
-        // Observer les données de Room
-        projectViewModel.getAllProjects().observe(this, new Observer<List<Project>>() {
-            @Override
-            public void onChanged(List<Project> projects) {
-                // Mettre à jour l'adapter avec les données de la BD
-                adapter.setProjectList(projects);
-            }
+        // ===== Observe Room =====
+        projectViewModel.getAllProjects().observe(this, projects -> {
+            adapter.setProjectList(projects);
         });
 
-        // Configurer le bouton d'ajout
+        // ===== Add project button =====
         fab.setOnClickListener(v -> showAddProjectDialog());
 
-        // Ajouter quelques données de test au premier lancement
+        // ===== Test data (optional) =====
         addInitialTestData();
     }
 
+    // ================= ADD TEST DATA =================
     private void addInitialTestData() {
-        // Vérifier si la base est vide, ajouter des données test
         new Thread(() -> {
             List<Project> projects = projectViewModel.getAllProjects().getValue();
             if (projects == null || projects.isEmpty()) {
-                Calendar calendar = Calendar.getInstance();
 
                 Project project1 = new Project(
                         "Site Web E-commerce",
@@ -96,22 +93,23 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
+    // ================= ADD PROJECT DIALOG =================
     private void showAddProjectDialog() {
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Nouveau projet");
 
-        // Inflater le layout
-        LayoutInflater inflater = getLayoutInflater();
-        View dialogView = inflater.inflate(R.layout.dialog_add_project, null);
-        builder.setView(dialogView);
+        View view = LayoutInflater.from(this)
+                .inflate(R.layout.dialog_add_project, null);
+        builder.setView(view);
 
-        // Récupérer les champs
-        EditText editName = dialogView.findViewById(R.id.editName);
-        EditText editClient = dialogView.findViewById(R.id.editClient);
-        EditText editDescription = dialogView.findViewById(R.id.editDescription);
-        EditText editBudget = dialogView.findViewById(R.id.editBudget);
+        EditText editName = view.findViewById(R.id.editName);
+        EditText editClient = view.findViewById(R.id.editClient);
+        EditText editDescription = view.findViewById(R.id.editDescription);
+        EditText editBudget = view.findViewById(R.id.editBudget);
 
         builder.setPositiveButton("Ajouter", (dialog, which) -> {
+
             String name = editName.getText().toString().trim();
             String client = editClient.getText().toString().trim();
             String description = editDescription.getText().toString().trim();
@@ -122,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            double budget = 0.0;
+            double budget;
             try {
                 budget = budgetStr.isEmpty() ? 0.0 : Double.parseDouble(budgetStr);
             } catch (NumberFormatException e) {
@@ -130,19 +128,24 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            // Date par défaut : 1 mois plus tard
             Calendar calendar = Calendar.getInstance();
             calendar.add(Calendar.MONTH, 1);
             long deadline = calendar.getTimeInMillis();
 
-            // Créer et insérer le projet
-            Project project = new Project(name, client, description, budget, deadline);
+            Project project = new Project(
+                    name,
+                    client,
+                    description,
+                    budget,
+                    deadline
+            );
+
             projectViewModel.insert(project);
 
             Toast.makeText(this, "Projet ajouté !", Toast.LENGTH_SHORT).show();
         });
 
         builder.setNegativeButton("Annuler", null);
-        builder.create().show();
+        builder.show();
     }
 }

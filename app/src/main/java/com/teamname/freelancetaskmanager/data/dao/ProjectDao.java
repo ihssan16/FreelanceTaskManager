@@ -37,4 +37,8 @@ public interface ProjectDao {
     // Supprimer tous les projets
     @Query("DELETE FROM projects")
     void deleteAllProjects();
+
+    // ✅ Mettre à jour le statut d'un projet
+    @Query("UPDATE projects SET status = :status WHERE id = :id")
+    void updateStatus(int id, String status);
 }
