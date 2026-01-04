@@ -29,8 +29,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_main);
 
         // ===== Views =====
         recyclerView = findViewById(R.id.recyclerView);
@@ -43,12 +43,21 @@ public class MainActivity extends AppCompatActivity {
                 .get(ProjectViewModel.class);
 
         // ===== Adapter =====
-        adapter = new ProjectAdapter(null, project -> {
-            String newStatus = project.getStatus().equals("PENDING")
-                    ? "DONE"
-                    : "PENDING";
+        adapter = new ProjectAdapter(null, new ProjectAdapter.OnProjectActionListener() {
 
-            projectViewModel.updateStatus(project.getId(), newStatus);
+            @Override
+            public void onStatusClick(Project project) {
+                String newStatus = project.getStatus().equals("PENDING")
+                        ? "DONE"
+                        : "PENDING";
+
+                projectViewModel.updateStatus(project.getId(), newStatus);
+            }
+
+            @Override
+            public void onDeleteClick(Project project) {
+                showDeleteConfirmation(project);
+            }
         });
 
         recyclerView.setAdapter(adapter);
@@ -66,23 +75,35 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // ================= ADD TEST DATA =================
+    private void showDeleteConfirmation(Project project) {
+        new AlertDialog.Builder(this)
+                .setTitle("Delete Project")
+                .setMessage("Are you sure you want to delete this project?")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    projectViewModel.delete(project);
+                    Toast.makeText(this, "Project deleted", Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
     private void addInitialTestData() {
         new Thread(() -> {
             List<Project> projects = projectViewModel.getAllProjects().getValue();
             if (projects == null || projects.isEmpty()) {
 
                 Project project1 = new Project(
-                        "Site Web E-commerce",
-                        "Boutique Moda",
-                        "Création site e-commerce avec paiement en ligne",
+                        "E-commerce Website",
+                        "Moda Store",
+                        "E-commerce website with online payment",
                         5000.0,
                         System.currentTimeMillis() + 30L * 24 * 60 * 60 * 1000
                 );
 
                 Project project2 = new Project(
-                        "Application Mobile",
-                        "Startup Tech",
-                        "Développement app iOS et Android",
+                        "Mobile Application",
+                        "Tech Startup",
+                        "iOS and Android app development",
                         8000.0,
                         System.currentTimeMillis() + 45L * 24 * 60 * 60 * 1000
                 );
@@ -97,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
     private void showAddProjectDialog() {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Nouveau projet");
+        builder.setTitle("New Project");
 
         View view = LayoutInflater.from(this)
                 .inflate(R.layout.dialog_add_project, null);
@@ -108,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
         EditText editDescription = view.findViewById(R.id.editDescription);
         EditText editBudget = view.findViewById(R.id.editBudget);
 
-        builder.setPositiveButton("Ajouter", (dialog, which) -> {
+        builder.setPositiveButton("Add", (dialog, which) -> {
 
             String name = editName.getText().toString().trim();
             String client = editClient.getText().toString().trim();
@@ -116,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
             String budgetStr = editBudget.getText().toString().trim();
 
             if (name.isEmpty()) {
-                Toast.makeText(this, "Le nom est requis", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Project name is required", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -124,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 budget = budgetStr.isEmpty() ? 0.0 : Double.parseDouble(budgetStr);
             } catch (NumberFormatException e) {
-                Toast.makeText(this, "Budget invalide", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Invalid budget", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -142,10 +163,10 @@ public class MainActivity extends AppCompatActivity {
 
             projectViewModel.insert(project);
 
-            Toast.makeText(this, "Projet ajouté !", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Project added!", Toast.LENGTH_SHORT).show();
         });
 
-        builder.setNegativeButton("Annuler", null);
+        builder.setNegativeButton("Cancel", null);
         builder.show();
     }
 }

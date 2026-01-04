@@ -13,7 +13,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Nom du projet *"
+            android:text="Name of the project *"
             android:textStyle="bold"
             android:layout_marginBottom="4dp" />
 
@@ -21,7 +21,7 @@
             android:id="@+id/editName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Ex: Site web client"
+            android:hint="Ex: Client Website"
             android:inputType="text"
             android:layout_marginBottom="16dp" />
 
@@ -37,7 +37,7 @@
             android:id="@+id/editClient"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Ex: Société ABC"
+            android:hint="Ex: ABC society"
             android:inputType="text"
             android:layout_marginBottom="16dp" />
 
@@ -53,7 +53,7 @@
             android:id="@+id/editDescription"
             android:layout_width="match_parent"
             android:layout_height="100dp"
-            android:hint="Décrivez le projet..."
+            android:hint="Describe the project..."
             android:inputType="textMultiLine"
             android:gravity="top"
             android:layout_marginBottom="16dp" />

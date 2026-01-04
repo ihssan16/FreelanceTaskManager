@@ -41,4 +41,5 @@ public interface ProjectDao {
     // ✅ Mettre à jour le statut d'un projet
     @Query("UPDATE projects SET status = :status WHERE id = :id")
     void updateStatus(int id, String status);
+
 }

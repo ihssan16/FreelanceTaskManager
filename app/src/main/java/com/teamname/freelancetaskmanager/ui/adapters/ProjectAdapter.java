@@ -22,16 +22,16 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
     private List<Project> projectList;
 
     // ✅ Interface to communicate with MainActivity
-    public interface OnStatusClickListener {
+    public interface OnProjectActionListener {
         void onStatusClick(Project project);
+        void onDeleteClick(Project project);
     }
 
-    private OnStatusClickListener statusClickListener;
-
+    private OnProjectActionListener listener;
     // ✅ Constructor
-    public ProjectAdapter(List<Project> projectList, OnStatusClickListener listener) {
+    public ProjectAdapter(List<Project> projectList, OnProjectActionListener listener) {
         this.projectList = projectList;
-        this.statusClickListener = listener;
+        this.listener = listener;
     }
 
     // ================= VIEW HOLDER =================
@@ -44,7 +44,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
         TextView textViewDeadline;
         TextView txtStatus;
         Button btnStatus;
-
+        Button btnDelete;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
@@ -56,6 +56,8 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
 
             txtStatus = itemView.findViewById(R.id.txtStatus);
             btnStatus = itemView.findViewById(R.id.btnStatus);
+            btnDelete = itemView.findViewById(R.id.btnDelete);
+
         }
     }
 
@@ -80,9 +82,9 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
         holder.textViewDescription.setText(project.getDescription());
         holder.textViewBudget.setText("Budget: " + project.getBudget() + "€");
 
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.FRENCH);
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
         String formattedDate = sdf.format(new Date(project.getDeadline()));
-        holder.textViewDeadline.setText("Échéance: " + formattedDate);
+        holder.textViewDeadline.setText("Deadline: " + formattedDate);
 
         // ===== Bind status =====
         holder.txtStatus.setText(project.getStatus());
@@ -101,8 +103,13 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
 
         // ===== Button click =====
         holder.btnStatus.setOnClickListener(v -> {
-            if (statusClickListener != null) {
-                statusClickListener.onStatusClick(project);
+            if (listener != null) {
+                listener.onStatusClick(project);
+            }
+        });
+        holder.btnDelete.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onDeleteClick(project);
             }
         });
     }
@@ -117,4 +124,5 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
         this.projectList = projectList;
         notifyDataSetChanged();
     }
+
 }

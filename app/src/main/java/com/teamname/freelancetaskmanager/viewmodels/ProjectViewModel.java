@@ -37,7 +37,9 @@ public class ProjectViewModel extends AndroidViewModel {
     public void delete(Project project) {
         repository.delete(project);
     }
+
     public void updateStatus(int id, String status) {
         repository.updateStatus(id, status);
     }
+
 }
