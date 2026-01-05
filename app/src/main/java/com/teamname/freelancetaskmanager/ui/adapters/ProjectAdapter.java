@@ -141,6 +141,9 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
                 listener.onStatusClick(project);
             }
         });
+        holder.btnEdit.setOnClickListener(v ->
+                listener.onEditClick(project)
+        );
 
         holder.btnDelete.setOnClickListener(v -> {
             if (listener != null) {

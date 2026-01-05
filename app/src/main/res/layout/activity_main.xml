@@ -28,37 +28,43 @@
         android:src="@android:drawable/ic_input_add"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
-    <!-- Filter bar -->
+    <!-- Filter + Sort container -->
     <LinearLayout
-        android:id="@+id/filterBar"
+        android:id="@+id/filterSortBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="8dp"
-        android:gravity="center_horizontal"
-        android:layout_marginBottom="32dp"
-        android:weightSum="3">
+        android:layout_marginBottom="16dp"
+        android:gravity="center">
+
+        <!-- Filters -->
+        <Button
+            android:id="@+id/filterAll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="All" />
 
         <Button
-            android:id="@+id/btnFilterAll"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+            android:id="@+id/filterPending"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="All"/>
+            android:text="Pending" />
 
         <Button
-            android:id="@+id/btnFilterPending"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+            android:id="@+id/filterDone"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Pending"/>
+            android:text="Done" />
 
-        <Button
-            android:id="@+id/btnFilterDone"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+        <!-- Sorting Spinner -->
+        <Spinner
+            android:id="@+id/sortSpinner"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Done"/>
+            android:entries="@array/sort_options"
+            android:spinnerMode="dropdown"/>
     </LinearLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

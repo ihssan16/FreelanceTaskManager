@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">FreelanceTaskManager</string>
+    <string-array name="sort_options">
+        <item>Sort by Deadline</item>
+        <item>Sort by Budget</item>
+        <item>Sort by Status</item>
+    </string-array>
 </resources>
