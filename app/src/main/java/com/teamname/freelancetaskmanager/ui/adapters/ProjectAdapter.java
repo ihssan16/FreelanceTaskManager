@@ -5,6 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.graphics.Paint;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -86,7 +87,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
         holder.textViewDescription.setText(project.getDescription());
         holder.textViewBudget.setText("Budget: " + project.getBudget() + "€");
 
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         String formattedDate = sdf.format(new Date(project.getDeadline()));
         holder.textViewDeadline.setText("Deadline: " + formattedDate);
 
@@ -94,34 +95,69 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
         holder.txtStatus.setText(project.getStatus());
 
         if ("DONE".equals(project.getStatus())) {
-            holder.txtStatus.setTextColor(
-                    holder.itemView.getResources().getColor(android.R.color.holo_green_dark)
+            // 1. Card background green
+            holder.itemView.setBackgroundColor(
+                    holder.itemView.getResources().getColor(android.R.color.holo_green_light)
             );
+
+            // 2. Gray text for other info
+            int grayColor = holder.itemView.getResources().getColor(android.R.color.darker_gray);
+            holder.textViewProjectName.setTextColor(grayColor);
+            holder.textViewClient.setTextColor(grayColor);
+            holder.textViewDescription.setTextColor(grayColor);
+            holder.textViewBudget.setTextColor(grayColor);
+            holder.textViewDeadline.setTextColor(grayColor);
+
+            // 3. Strike-through title
+            holder.textViewProjectName.setPaintFlags(
+                    holder.textViewProjectName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG
+            );
+
             holder.btnStatus.setText("Undo");
         } else {
-            holder.txtStatus.setTextColor(
-                    holder.itemView.getResources().getColor(android.R.color.holo_red_dark)
+            // Reset for PENDING
+            holder.itemView.setBackgroundColor(
+                    holder.itemView.getResources().getColor(android.R.color.white)
             );
+
+            int blackColor = holder.itemView.getResources().getColor(android.R.color.black);
+            holder.textViewProjectName.setTextColor(blackColor);
+            holder.textViewClient.setTextColor(blackColor);
+            holder.textViewDescription.setTextColor(blackColor);
+            holder.textViewBudget.setTextColor(blackColor);
+            holder.textViewDeadline.setTextColor(blackColor);
+
+            // Remove strike-through
+            holder.textViewProjectName.setPaintFlags(
+                    holder.textViewProjectName.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG)
+            );
+
             holder.btnStatus.setText("Mark Done");
         }
 
-        // ===== Button click =====
+        // ===== Button clicks =====
         holder.btnStatus.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onStatusClick(project);
             }
         });
+
         holder.btnDelete.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onDeleteClick(project);
             }
         });
-
-        holder.btnEdit.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onEditClick(project);
-            }
-        });
+        if ("DONE".equals(project.getStatus())) {
+            holder.itemView.setBackgroundColor(holder.itemView.getResources().getColor(R.color.done_background));
+            holder.txtStatus.setTextColor(holder.itemView.getResources().getColor(R.color.done_text));
+            holder.txtStatus.setPaintFlags(holder.txtStatus.getPaintFlags() );
+            holder.btnStatus.setText("Undo");
+        } else {
+            holder.itemView.setBackgroundColor(holder.itemView.getResources().getColor(android.R.color.white));
+            holder.txtStatus.setTextColor(holder.itemView.getResources().getColor(android.R.color.holo_red_dark));
+            holder.txtStatus.setPaintFlags(holder.txtStatus.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+            holder.btnStatus.setText("Mark Done");
+        }
 
     }
 

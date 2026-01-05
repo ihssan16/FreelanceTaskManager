@@ -3,4 +3,8 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="purple_500">#6200EE</color>
+    <!-- In res/values/colors.xml -->
+    <color name="done_background">#C8E6C9</color> <!-- Soft pastel green -->
+    <color name="done_text">#2E7D32</color> <!-- Dark green for DONE text -->
+
 </resources>
