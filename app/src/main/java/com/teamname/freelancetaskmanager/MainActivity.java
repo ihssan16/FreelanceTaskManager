@@ -5,6 +5,7 @@ import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -19,6 +20,7 @@ import com.teamname.freelancetaskmanager.ui.adapters.ProjectAdapter;
 import com.teamname.freelancetaskmanager.viewmodels.ProjectViewModel;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -30,6 +32,10 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton fab;
     private ProjectAdapter adapter;
     private ProjectViewModel projectViewModel;
+    private List<Project> allProjects = new ArrayList<>(); // All projects from DB
+
+    // Filter buttons
+    private Button btnFilterAll, btnFilterPending, btnFilterDone;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,20 +46,20 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         fab = findViewById(R.id.fab);
 
+        btnFilterAll = findViewById(R.id.btnFilterAll);
+        btnFilterPending = findViewById(R.id.btnFilterPending);
+        btnFilterDone = findViewById(R.id.btnFilterDone);
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         // ===== ViewModel =====
-        projectViewModel = new ViewModelProvider(this)
-                .get(ProjectViewModel.class);
+        projectViewModel = new ViewModelProvider(this).get(ProjectViewModel.class);
 
         // ===== Adapter =====
         adapter = new ProjectAdapter(null, new ProjectAdapter.OnProjectActionListener() {
-
             @Override
             public void onStatusClick(Project project) {
-                String newStatus = project.getStatus().equals("PENDING")
-                        ? "DONE"
-                        : "PENDING";
+                String newStatus = project.getStatus().equals("PENDING") ? "DONE" : "PENDING";
                 projectViewModel.updateStatus(project.getId(), newStatus);
             }
 
@@ -72,14 +78,54 @@ public class MainActivity extends AppCompatActivity {
 
         // ===== Observe Room =====
         projectViewModel.getAllProjects().observe(this, projects -> {
-            adapter.setProjectList(projects);
+            allProjects = projects; // store all projects
+            adapter.setProjectList(allProjects);
         });
+
+        // ===== Filter listeners =====
+        btnFilterAll.setOnClickListener(v -> applyFilter("ALL"));
+        btnFilterPending.setOnClickListener(v -> applyFilter("PENDING"));
+        btnFilterDone.setOnClickListener(v -> applyFilter("DONE"));
 
         // ===== Add project button =====
         fab.setOnClickListener(v -> showAddProjectDialog());
 
-        // ===== Test data (optional) =====
+        // ===== Test data =====
         addInitialTestData();
+    }
+
+    // ================= FILTER =================
+    private void applyFilter(String status) {
+        List<Project> filtered = new ArrayList<>();
+        if ("ALL".equals(status)) {
+            filtered = allProjects;
+        } else {
+            for (Project p : allProjects) {
+                if (status.equals(p.getStatus())) filtered.add(p);
+            }
+        }
+        adapter.setProjectList(filtered);
+        highlightFilterButton(status);
+    }
+
+    private void highlightFilterButton(String status) {
+        // Reset all to default
+        btnFilterAll.setAlpha(0.6f);
+        btnFilterPending.setAlpha(0.6f);
+        btnFilterDone.setAlpha(0.6f);
+
+        // Highlight selected
+        switch (status) {
+            case "ALL":
+                btnFilterAll.setAlpha(1f);
+                break;
+            case "PENDING":
+                btnFilterPending.setAlpha(1f);
+                break;
+            case "DONE":
+                btnFilterDone.setAlpha(1f);
+                break;
+        }
     }
 
     // ================= DELETE =================
@@ -97,12 +143,9 @@ public class MainActivity extends AppCompatActivity {
 
     // ================= EDIT =================
     private void showEditProjectDialog(Project project) {
-
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Edit Project");
-
-        View view = LayoutInflater.from(this)
-                .inflate(R.layout.dialog_add_project, null);
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_add_project, null);
         builder.setView(view);
 
         EditText editName = view.findViewById(R.id.editName);
@@ -111,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
         EditText editBudget = view.findViewById(R.id.editBudget);
         EditText editDeadline = view.findViewById(R.id.editDeadline);
 
-        // ===== Pre-fill data =====
+        // Pre-fill data
         editName.setText(project.getName());
         editClient.setText(project.getClient());
         editDescription.setText(project.getDescription());
@@ -120,13 +163,11 @@ public class MainActivity extends AppCompatActivity {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         editDeadline.setText(sdf.format(new Date(project.getDeadline())));
 
-        // ===== Handle Deadline Picker =====
+        // Handle Deadline Picker
         editDeadline.setOnClickListener(v -> {
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeInMillis(project.getDeadline());
-
-            new DatePickerDialog(
-                    this,
+            new DatePickerDialog(this,
                     (view1, year, month, dayOfMonth) -> {
                         calendar.set(year, month, dayOfMonth);
                         project.setDeadline(calendar.getTimeInMillis());
@@ -138,9 +179,7 @@ public class MainActivity extends AppCompatActivity {
             ).show();
         });
 
-        // ===== Save Button =====
         builder.setPositiveButton("Save", (dialog, which) -> {
-
             project.setName(editName.getText().toString().trim());
             project.setClient(editClient.getText().toString().trim());
             project.setDescription(editDescription.getText().toString().trim());
@@ -161,12 +200,9 @@ public class MainActivity extends AppCompatActivity {
 
     // ================= ADD =================
     private void showAddProjectDialog() {
-
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("New Project");
-
-        View view = LayoutInflater.from(this)
-                .inflate(R.layout.dialog_add_project, null);
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_add_project, null);
         builder.setView(view);
 
         EditText editName = view.findViewById(R.id.editName);
@@ -175,20 +211,16 @@ public class MainActivity extends AppCompatActivity {
         EditText editBudget = view.findViewById(R.id.editBudget);
         EditText editDeadline = view.findViewById(R.id.editDeadline);
 
-        // ===== Default deadline =====
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MONTH, 1); // default = next month
+        calendar.add(Calendar.MONTH, 1);
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         editDeadline.setText(sdf.format(calendar.getTime()));
         long[] selectedDeadline = new long[]{calendar.getTimeInMillis()};
 
-        // ===== Handle Deadline Picker =====
         editDeadline.setOnClickListener(v -> {
             Calendar c = Calendar.getInstance();
             c.setTimeInMillis(selectedDeadline[0]);
-
-            new DatePickerDialog(
-                    this,
+            new DatePickerDialog(this,
                     (view1, year, month, dayOfMonth) -> {
                         c.set(year, month, dayOfMonth);
                         selectedDeadline[0] = c.getTimeInMillis();
@@ -200,9 +232,7 @@ public class MainActivity extends AppCompatActivity {
             ).show();
         });
 
-        // ===== Add Button =====
         builder.setPositiveButton("Add", (dialog, which) -> {
-
             String name = editName.getText().toString().trim();
             String client = editClient.getText().toString().trim();
             String description = editDescription.getText().toString().trim();
@@ -226,7 +256,7 @@ public class MainActivity extends AppCompatActivity {
                     client,
                     description,
                     budget,
-                    selectedDeadline[0] // ✅ Use user-picked date
+                    selectedDeadline[0]
             );
 
             projectViewModel.insert(project);

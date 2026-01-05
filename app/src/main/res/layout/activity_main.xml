@@ -13,7 +13,10 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/fab" />
+        app:layout_constraintBottom_toTopOf="@id/fab"
+        android:paddingTop="16dp"
+        android:clipToPadding="false"
+        android:scrollbars="vertical"/>
 
     <!-- Bouton flottant pour ajouter un projet -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -25,5 +28,37 @@
         android:src="@android:drawable/ic_input_add"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+    <!-- Filter bar -->
+    <LinearLayout
+        android:id="@+id/filterBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:gravity="center_horizontal"
+        android:layout_marginBottom="32dp"
+        android:weightSum="3">
+
+        <Button
+            android:id="@+id/btnFilterAll"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="All"/>
+
+        <Button
+            android:id="@+id/btnFilterPending"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Pending"/>
+
+        <Button
+            android:id="@+id/btnFilterDone"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Done"/>
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
