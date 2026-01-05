@@ -25,6 +25,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
     public interface OnProjectActionListener {
         void onStatusClick(Project project);
         void onDeleteClick(Project project);
+        void onEditClick(Project project);
     }
 
     private OnProjectActionListener listener;
@@ -45,6 +46,7 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
         TextView txtStatus;
         Button btnStatus;
         Button btnDelete;
+        Button btnEdit;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
@@ -57,6 +59,8 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
             txtStatus = itemView.findViewById(R.id.txtStatus);
             btnStatus = itemView.findViewById(R.id.btnStatus);
             btnDelete = itemView.findViewById(R.id.btnDelete);
+            btnEdit = itemView.findViewById(R.id.btnEdit);
+
 
         }
     }
@@ -112,6 +116,13 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
                 listener.onDeleteClick(project);
             }
         });
+
+        holder.btnEdit.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onEditClick(project);
+            }
+        });
+
     }
 
     @Override
