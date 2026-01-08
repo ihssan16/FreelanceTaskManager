@@ -2,6 +2,7 @@ package com.teamname.freelancetaskmanager;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton fab;
     private ProjectAdapter adapter;
     private ProjectViewModel projectViewModel;
-    private List<Project> allProjects; // all projects from DB
+    private List<Project> allProjects;
 
     private Button filterAll, filterPending, filterDone;
     private Spinner sortSpinner;
@@ -48,7 +49,6 @@ public class MainActivity extends AppCompatActivity {
         // ===== Views =====
         recyclerView = findViewById(R.id.recyclerView);
         fab = findViewById(R.id.fab);
-
         filterAll = findViewById(R.id.filterAll);
         filterPending = findViewById(R.id.filterPending);
         filterDone = findViewById(R.id.filterDone);
@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
         projectViewModel = new ViewModelProvider(this).get(ProjectViewModel.class);
 
         // ===== Adapter =====
-        adapter = new ProjectAdapter(null, new ProjectAdapter.OnProjectActionListener() {
+        adapter = new ProjectAdapter(new ArrayList<>(), new ProjectAdapter.OnProjectActionListener() {
             @Override
             public void onStatusClick(Project project) {
                 String newStatus = project.getStatus().equals("PENDING") ? "DONE" : "PENDING";
@@ -75,6 +75,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onEditClick(Project project) {
                 showEditProjectDialog(project);
+            }
+
+            @Override
+            public void onProjectClick(Project project) {
+                // Open ProjectDetailActivity with project ID
+                Intent intent = new Intent(MainActivity.this, ProjectDetailActivity.class);
+                intent.putExtra("project_id", project.getId());
+                startActivity(intent);
             }
         });
 
@@ -98,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
         sortSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                updateAdapter(); // reapply filter + sort
+                updateAdapter();
             }
 
             @Override
@@ -111,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
         addInitialTestData();
     }
 
-    // ================= UPDATE ADAPTER WITH FILTER + SORT =================
+    // ================= UPDATE ADAPTER =================
     private void updateAdapter() {
         updateAdapter(null);
     }

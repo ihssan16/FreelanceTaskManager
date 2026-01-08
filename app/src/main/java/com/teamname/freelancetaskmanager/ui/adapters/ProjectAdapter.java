@@ -1,11 +1,11 @@
 package com.teamname.freelancetaskmanager.ui.adapters;
 
+import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.graphics.Paint;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -21,16 +21,19 @@ import java.util.Locale;
 public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHolder> {
 
     private List<Project> projectList;
+    private OnProjectActionListener listener;
 
-    // ✅ Interface to communicate with MainActivity
+    // ================= INTERFACE =================
     public interface OnProjectActionListener {
         void onStatusClick(Project project);
         void onDeleteClick(Project project);
         void onEditClick(Project project);
+
+        // 🔥 PROJECT CLICK
+        void onProjectClick(Project project);
     }
 
-    private OnProjectActionListener listener;
-    // ✅ Constructor
+    // ================= CONSTRUCTOR =================
     public ProjectAdapter(List<Project> projectList, OnProjectActionListener listener) {
         this.projectList = projectList;
         this.listener = listener;
@@ -45,9 +48,11 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
         TextView textViewBudget;
         TextView textViewDeadline;
         TextView txtStatus;
+
         Button btnStatus;
         Button btnDelete;
         Button btnEdit;
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
@@ -58,11 +63,10 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
             textViewDeadline = itemView.findViewById(R.id.textViewDeadline);
 
             txtStatus = itemView.findViewById(R.id.txtStatus);
+
             btnStatus = itemView.findViewById(R.id.btnStatus);
             btnDelete = itemView.findViewById(R.id.btnDelete);
             btnEdit = itemView.findViewById(R.id.btnEdit);
-
-
         }
     }
 
@@ -81,87 +85,82 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
 
         Project project = projectList.get(position);
 
-        // ===== Bind basic info =====
+        // ===== BASIC INFO =====
         holder.textViewProjectName.setText(project.getName());
         holder.textViewClient.setText("Client: " + project.getClient());
         holder.textViewDescription.setText(project.getDescription());
         holder.textViewBudget.setText("Budget: " + project.getBudget() + "€");
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-        String formattedDate = sdf.format(new Date(project.getDeadline()));
-        holder.textViewDeadline.setText("Deadline: " + formattedDate);
+        holder.textViewDeadline.setText("Deadline: " + sdf.format(new Date(project.getDeadline())));
 
-        // ===== Bind status =====
+        // ===== STATUS =====
         holder.txtStatus.setText(project.getStatus());
 
         if ("DONE".equals(project.getStatus())) {
-            // 1. Card background green
+
             holder.itemView.setBackgroundColor(
-                    holder.itemView.getResources().getColor(android.R.color.holo_green_light)
+                    holder.itemView.getResources().getColor(R.color.done_background)
             );
 
-            // 2. Gray text for other info
-            int grayColor = holder.itemView.getResources().getColor(android.R.color.darker_gray);
-            holder.textViewProjectName.setTextColor(grayColor);
-            holder.textViewClient.setTextColor(grayColor);
-            holder.textViewDescription.setTextColor(grayColor);
-            holder.textViewBudget.setTextColor(grayColor);
-            holder.textViewDeadline.setTextColor(grayColor);
+            int gray = holder.itemView.getResources().getColor(android.R.color.darker_gray);
+            holder.textViewProjectName.setTextColor(gray);
+            holder.textViewClient.setTextColor(gray);
+            holder.textViewDescription.setTextColor(gray);
+            holder.textViewBudget.setTextColor(gray);
+            holder.textViewDeadline.setTextColor(gray);
 
-            // 3. Strike-through title
             holder.textViewProjectName.setPaintFlags(
                     holder.textViewProjectName.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG
             );
 
+            holder.txtStatus.setTextColor(
+                    holder.itemView.getResources().getColor(R.color.done_text)
+            );
+
             holder.btnStatus.setText("Undo");
+
         } else {
-            // Reset for PENDING
+
             holder.itemView.setBackgroundColor(
                     holder.itemView.getResources().getColor(android.R.color.white)
             );
 
-            int blackColor = holder.itemView.getResources().getColor(android.R.color.black);
-            holder.textViewProjectName.setTextColor(blackColor);
-            holder.textViewClient.setTextColor(blackColor);
-            holder.textViewDescription.setTextColor(blackColor);
-            holder.textViewBudget.setTextColor(blackColor);
-            holder.textViewDeadline.setTextColor(blackColor);
+            int black = holder.itemView.getResources().getColor(android.R.color.black);
+            holder.textViewProjectName.setTextColor(black);
+            holder.textViewClient.setTextColor(black);
+            holder.textViewDescription.setTextColor(black);
+            holder.textViewBudget.setTextColor(black);
+            holder.textViewDeadline.setTextColor(black);
 
-            // Remove strike-through
             holder.textViewProjectName.setPaintFlags(
                     holder.textViewProjectName.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG)
+            );
+
+            holder.txtStatus.setTextColor(
+                    holder.itemView.getResources().getColor(android.R.color.holo_red_dark)
             );
 
             holder.btnStatus.setText("Mark Done");
         }
 
-        // ===== Button clicks =====
+        // ===== BUTTON CLICKS =====
         holder.btnStatus.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onStatusClick(project);
-            }
+            if (listener != null) listener.onStatusClick(project);
         });
-        holder.btnEdit.setOnClickListener(v ->
-                listener.onEditClick(project)
-        );
+
+        holder.btnEdit.setOnClickListener(v -> {
+            if (listener != null) listener.onEditClick(project);
+        });
 
         holder.btnDelete.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onDeleteClick(project);
-            }
+            if (listener != null) listener.onDeleteClick(project);
         });
-        if ("DONE".equals(project.getStatus())) {
-            holder.itemView.setBackgroundColor(holder.itemView.getResources().getColor(R.color.done_background));
-            holder.txtStatus.setTextColor(holder.itemView.getResources().getColor(R.color.done_text));
-            holder.txtStatus.setPaintFlags(holder.txtStatus.getPaintFlags() );
-            holder.btnStatus.setText("Undo");
-        } else {
-            holder.itemView.setBackgroundColor(holder.itemView.getResources().getColor(android.R.color.white));
-            holder.txtStatus.setTextColor(holder.itemView.getResources().getColor(android.R.color.holo_red_dark));
-            holder.txtStatus.setPaintFlags(holder.txtStatus.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
-            holder.btnStatus.setText("Mark Done");
-        }
 
+        // 🔥 PROJECT CLICK (WHOLE CARD)
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) listener.onProjectClick(project);
+        });
     }
 
     @Override
@@ -174,5 +173,4 @@ public class ProjectAdapter extends RecyclerView.Adapter<ProjectAdapter.ViewHold
         this.projectList = projectList;
         notifyDataSetChanged();
     }
-
 }
