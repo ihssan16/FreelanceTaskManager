@@ -4,10 +4,11 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-
+import android.view.MenuItem;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -35,7 +36,10 @@ public class ProjectDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_project_detail);
-
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            //getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back); // optionnel
+        }
         projectId = getIntent().getLongExtra("project_id", -1);
 
         taskViewModel = new ViewModelProvider(this).get(TaskViewModel.class);
@@ -45,6 +49,7 @@ public class ProjectDetailActivity extends AppCompatActivity {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         taskAdapter = new TaskAdapter(null, new TaskAdapter.OnTaskActionListener() {
+
             @Override
             public void onStatusClick(Task task) {
                 task.setStatus(task.getStatus().equals("PENDING") ? "DONE" : "PENDING");
@@ -61,6 +66,7 @@ public class ProjectDetailActivity extends AppCompatActivity {
             public void onEditClick(Task task) {
                 showEditTaskDialog(task);
             }
+
         });
 
         recyclerView.setAdapter(taskAdapter);
@@ -69,7 +75,14 @@ public class ProjectDetailActivity extends AppCompatActivity {
 
         fabAddTask.setOnClickListener(v -> showAddTaskDialog());
     }
-
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish(); // termine cette activité et revient à l'activité précédente
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
     // ================= ADD TASK DIALOG =================
     private void showAddTaskDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);

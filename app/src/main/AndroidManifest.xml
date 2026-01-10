@@ -12,20 +12,19 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FreelanceTaskManager">
 
-        <!-- Main Activity -->
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
+        <activity android:name=".LoginActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
+        <activity android:name=".RegisterActivity" />
+        <activity android:name=".MainActivity" />
         <!-- Project Detail Activity -->
         <activity
             android:name=".ProjectDetailActivity"
-            android:exported="true" />
+            android:theme="@style/Theme.FreelanceTaskManager"/>
 
     </application>
 
